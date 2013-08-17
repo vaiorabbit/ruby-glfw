@@ -1,4 +1,3 @@
-require 'ffi'
 require 'opengl'
 require_relative 'glfw'
 include GLFW
