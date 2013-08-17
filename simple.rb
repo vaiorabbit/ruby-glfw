@@ -1,0 +1,52 @@
+# Ref.: /glfw-3.0.1/examples/simple.c
+require 'ffi'
+require 'opengl'
+require_relative 'glfw'
+include GLFW
+
+key_callback = Proc.new do |window_handle, key, scancode, action, mods|
+  if key == GLFW_KEY_ESCAPE && action == GLFW_PRESS
+    glfwSetWindowShouldClose(window_handle, 1)
+  end
+end
+
+if __FILE__ == $0
+  glfwInit()
+  window = glfwCreateWindow( 640, 480, "Simple example", nil, nil )
+  glfwMakeContextCurrent( window )
+  glfwSetKeyCallback( window, key_callback )
+
+  while glfwWindowShouldClose( window ) == 0
+    width_ptr = FFI::MemoryPointer.new :int
+    height_ptr = FFI::MemoryPointer.new :int
+    glfwGetFramebufferSize(window, width_ptr, height_ptr)
+    width = width_ptr.get_int32(0).to_f
+    height = height_ptr.get_int32(0).to_f
+    ratio = width / height
+    glViewport(0, 0, width, height)
+    glClear(GL_COLOR_BUFFER_BIT)
+
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    glOrtho(-ratio, ratio, -1.0, 1.0, 1.0, -1.0)
+    glMatrixMode(GL_MODELVIEW)
+
+    glLoadIdentity()
+    glRotatef(glfwGetTime() * 50.0, 0.0, 0.0, 1.0)
+
+    glBegin(GL_TRIANGLES)
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex3f(-0.6, -0.4, 0.0)
+    glColor3f(0.0, 1.0, 0.0)
+    glVertex3f(0.6, -0.4, 0.0)
+    glColor3f(0.0, 0.0, 1.0)
+    glVertex3f(0.0, 0.6, 0.0)
+    glEnd()
+
+    glfwSwapBuffers( window )
+    glfwPollEvents()
+  end
+
+  glfwDestroyWindow( window )
+  glfwTerminate()
+end
